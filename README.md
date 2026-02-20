@@ -1,4 +1,4 @@
-# Adinkra Oracle - Sabedoria Ancestral
+# Oráculo Adinkra - sabedoria ancestral
 
 Um aplicativo web progressivo (PWA) que funciona como oráculo de sabedoria ancestral, 
 utilizando os símbolos Adinkra da cultura Akan de Gana.
@@ -14,7 +14,7 @@ Fonte: [Adinkra Symbols & Meanings]
 
 ## Desenvolvimento
 
-**Código gerado por Inteligência Artificial** (Claude/Kimi) com base em 
+**Código gerado por Inteligência Artificial** (Kimi 2.5) com base em 
 especificações do usuário e pesquisa sobre simbolismo Adinkra.
 
 - Estrutura HTML/CSS/JavaScript
