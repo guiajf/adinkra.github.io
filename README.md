@@ -10,7 +10,7 @@ originárias do povo Gyaman de Gana e Costa do Marfim. Saturados de significado,
 estes símbolos representam a riqueza da cultura Akan e servem como uma forma 
 visual de comunicar verdades profundas.
 
-Fonte: [Adinkra Symbols & Meanings](adinkrasymbols.org)
+Fonte: [Adinkra Symbols & Meanings](https://www.adinkrasymbols.org/)
 
 ## Desenvolvimento
 
