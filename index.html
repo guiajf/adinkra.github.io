@@ -1,13 +1,1482 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal GitHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a0f0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Adinkra - oráculo da sabedoria ancestral</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --earth-dark: #1a0f0a;
+            --earth-brown: #3d2817;
+            --terracotta: #c75b39;
+            --gold: #d4af37;
+            --cream: #f5f5dc;
+            --ochre: #cc7722;
+            --deep-red: #8b2635;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--earth-dark);
+            color: var(--cream);
+            overflow: hidden;
+            touch-action: manipulation;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Background Pattern */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, var(--gold) 35px, var(--gold) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, var(--terracotta) 35px, var(--terracotta) 70px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Screens */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1;
+            background: radial-gradient(ellipse at center, var(--earth-brown) 0%, var(--earth-dark) 100%);
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        /* Home Screen */
+        #homeScreen {
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        #homeScreen:active {
+            transform: scale(0.98);
+        }
+
+        .title-container {
+            margin-bottom: 40px;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--terracotta);
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
+        .symbol-placeholder {
+            width: 200px;
+            height: 200px;
+            border: 3px solid var(--gold);
+            border-radius: 50%;
+            margin: 40px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: pulse 3s infinite;
+            background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
+        }
+
+        .tap-text {
+            font-size: 1.2rem;
+            color: var(--cream);
+            opacity: 0.7;
+            letter-spacing: 3px;
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* Result Screen */
+        #resultScreen {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .result-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(61, 40, 23, 0.6);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .symbol-display {
+            width: 100%;
+            aspect-ratio: 1;
+            max-width: 280px;
+            margin: 0 auto 30px;
+            background: var(--cream);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .adinkra-svg {
+            width: 85%;
+            height: 85%;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .symbol-name {
+            font-size: 1.8rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .symbol-translation {
+            font-size: 0.9rem;
+            color: var(--terracotta);
+            text-align: center;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .symbol-meaning {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--cream);
+            text-align: left;
+            padding: 20px;
+            background: rgba(26, 15, 10, 0.4);
+            border-radius: 10px;
+            border-left: 4px solid var(--gold);
+        }
+
+        .proverb {
+            margin-top: 20px;
+            padding: 15px;
+            font-style: italic;
+            color: var(--ochre);
+            text-align: center;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            font-size: 0.95rem;
+        }
+
+        .back-button {
+            margin-top: 30px;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--terracotta) 0%, var(--deep-red) 100%);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(199, 91, 57, 0.4);
+        }
+
+        .back-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(199, 91, 57, 0.3);
+        }
+
+        /* Loading Animation */
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 100;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(212, 175, 55, 0.3);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Corner Decorations */
+        .corner-decoration {
+            position: fixed;
+            width: 100px;
+            height: 100px;
+            border: 2px solid var(--gold);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .corner-decoration.top-left {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.top-right {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.bottom-left {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Responsive */
+        @media (max-height: 700px) {
+            .symbol-display {
+                max-width: 200px;
+            }
+            .main-title {
+                font-size: 2rem;
+            }
+            .result-container {
+                padding: 20px;
+            }
+        }
+
+        .noselect {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+<base target="_blank">
 </head>
-<body>
-    <h1>Seja bem-vindo!</h1>
-    <p>Este é um site GitHub elementar.</p>
+<body class="noselect">
+    <div class="bg-pattern"></div>
+    
+    <div class="corner-decoration top-left"></div>
+    <div class="corner-decoration top-right"></div>
+    <div class="corner-decoration bottom-left"></div>
+    <div class="corner-decoration bottom-right"></div>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <div class="screen active" id="homeScreen">
+        <div class="title-container">
+            <h1 class="main-title">Adinkra</h1>
+            <p class="subtitle">oráculo da sabedoria ancestral</p>
+        </div>
+        
+        <div class="symbol-placeholder">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" stroke="#d4af37" stroke-width="2" fill="none"/>
+                <path d="M50 20 L50 80 M20 50 L80 50" stroke="#d4af37" stroke-width="2"/>
+                <circle cx="50" cy="50" r="15" stroke="#c75b39" stroke-width="2" fill="none"/>
+            </svg>
+        </div>
+        
+        <p class="tap-text">Toque para revelar seu símbolo</p>
+    </div>
+
+    <div class="screen" id="resultScreen">
+        <div class="result-container">
+            <div class="symbol-display" id="symbolDisplay"></div>
+            
+            <h2 class="symbol-name" id="symbolName"></h2>
+            <p class="symbol-translation" id="symbolTranslation"></p>
+            
+            <div class="symbol-meaning" id="symbolMeaning"></div>
+            
+            <div class="proverb" id="symbolProverb"></div>
+            
+            <button class="back-button" onclick="goHome()">
+                ← Nova Consulta
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // BANCO DE DADOS COMPLETO DOS SÍMBOLOS ADINKRA
+        // Baseado no documento: Adinkra Symbols & Meanings
+        // Para adicionar novos símbolos, siga este formato:
+        /*
+        {
+            name: "Nome do Símbolo",
+            translation: "Tradução Literal",
+            meaning: "Significado completo e descrição",
+            proverb: "Provérbio associado (se houver)",
+            svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">...</svg>`
+        }
+        */
+        
+        const adinkraSymbols = [
+            // 1. GYE NYAME
+            {
+                name: "Gye Nyame",
+                translation: "Exceto Deus",
+                meaning: "Expressa a onipotência e supremacia de Deus. Provavelmente o símbolo Adinkra mais popular. É apresentado na cédula de maior denominação de Gana, a nota de 200 cedis. Representa o reconhecimento de que há um poder supremo que governa todas as coisas e que nada acontece sem a vontade divina.",
+                proverb: "Esta grande panorâmica da criação remonta à antiguidade; ninguém viveu que viu seu início e ninguém viverá para ver seu fim, exceto Deus.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="50" cy="50" r="35" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 15 L50 85 M15 50 L85 50" stroke="#1a0f0a" stroke-width="3"/>
+                    <circle cx="50" cy="50" r="12" fill="#c75b39"/>
+                    <path d="M50 35 L50 65 M35 50 L65 50" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 2. SANKOFA (Pássaro)
+            {
+                name: "Sankofa",
+                translation: "Volte e busque",
+                meaning: "Símbolo da sabedoria de aprender com o passado para construir o futuro. Representado por um pássaro mítico que olha para trás enquanto segue em frente. Do provérbio Akan: 'Se wo were fi na wosan kofa a yenkyiri' - Não é tabu voltar para buscar o que você esqueceu ou deixou para trás.",
+                proverb: "Se wo were fi na wosan kofa a yenkyiri - Não é tabu voltar para buscar o que você esqueceu.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M70 25 Q45 15, 25 35 Q15 50, 30 70 Q45 85, 65 75" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="28" cy="38" r="3" fill="#1a0f0a"/>
+                    <path d="M22 35 L15 30 M22 35 L15 40" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M35 55 Q50 45, 60 55 Q60 70, 45 75 Q35 70, 35 55" fill="#c75b39"/>
+                    <path d="M40 78 Q50 88, 60 78" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                </svg>`
+            },
+            
+            // 3. SANKOFA (Coração)
+            {
+                name: "Sankofa (Coração)",
+                translation: "Volte e busque",
+                meaning: "Outra representação do conceito de Sankofa, desta vez na forma de um coração estilizado. As espirais representam o retorno às raízes para extrair lições para o presente e o futuro. Aprenda com o passado para construir um futuro melhor.",
+                proverb: "Volte ao seu passado para buscar a sabedoria que o guiará amanhã.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 20 C30 20, 20 35, 20 50 C20 70, 50 85, 50 85 C50 85, 80 70, 80 50 C80 35, 70 20, 50 20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M35 45 Q50 35, 65 45 Q65 60, 50 70 Q35 60, 35 45" fill="#c75b39"/>
+                    <path d="M50 30 L50 50 M40 40 L60 40" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 4. ADINKRAHENE
+            {
+                name: "Adinkrahene",
+                translation: "Rei dos Adinkra",
+                meaning: "Símbolo de autoridade, liderança e carisma. Também representa qualidades associadas aos reis. Diz-se que o Adinkrahene foi a inspiração para o design dos outros símbolos. É o primeiro e mais importante de todos os símbolos Adinkra.",
+                proverb: "O verdadeiro líder não é aquele que comanda, mas aquele que inspira outros a seguirem.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="50" cy="30" r="18" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="30" r="10" fill="#c75b39"/>
+                    <path d="M50 48 L50 85 M30 65 L70 65 M25 85 L75 85" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="30" cy="65" r="5" fill="#1a0f0a"/>
+                    <circle cx="70" cy="65" r="5" fill="#1a0f0a"/>
+                </svg>`
+            },
+            
+            // 5. DWENNIMMEN
+            {
+                name: "Dwennimmen",
+                translation: "Chifres de carneiro",
+                meaning: "Símbolo de força (mente, corpo e alma), humildade, sabedoria e aprendizado. Este símbolo aparece proeminentemente no logo da Universidade de Gana, a primeira e maior universidade do país. O carneiro luta ferozmente mas também se submete humildemente ao abate.",
+                proverb: "A força sem humildade é como o carneiro que luta mas não conhece a sabedoria da submissão.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M20 80 Q20 40, 50 30 Q80 40, 80 80" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M20 80 Q5 55, 30 45 Q45 38, 38 58" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M80 80 Q95 55, 70 45 Q55 38, 62 58" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="55" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 6. FUNTUMFUNEFU DENKYEMFUNEFU
+            {
+                name: "Funtumfunefu Denkyemfunefu",
+                translation: "Crocodilos unidos",
+                meaning: "Símbolo de unidade na diversidade que dá um destino comum; compartilhamento. Do provérbio: 'Funtumfrafu e Denkyemfrafu compartilham um estômago mas quando conseguem algo (comida) lutam por isso porque a doçura da comida é sentida na garganta.'",
+                proverb: "Funtumfrafu e Denkyemfrafu compartilham um estômago, mas quando há comida, disputam-na, porque a doçura é sentida na garganta.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 40 Q20 30, 30 20 Q40 10, 50 20 Q60 10, 70 20 Q80 30, 70 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 60 Q20 70, 30 80 Q40 90, 50 80 Q60 90, 70 80 Q80 70, 70 60" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="35" cy="30" r="2" fill="#1a0f0a"/>
+                    <circle cx="65" cy="30" r="2" fill="#1a0f0a"/>
+                    <circle cx="35" cy="70" r="2" fill="#1a0f0a"/>
+                    <circle cx="65" cy="70" r="2" fill="#1a0f0a"/>
+                    <ellipse cx="50" cy="50" rx="10" ry="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 7. NKYINKYIM
+            {
+                name: "Nkyinkyim",
+                translation: "Tortuosidade",
+                meaning: "Símbolo representando a natureza tortuosa da jornada da vida e a resistência, versatilidade e dinamismo necessários para prosperar. Também é símbolo de dedicação ao serviço e da iniciativa necessária para enfrentar desafios.",
+                proverb: "A vida é o que você faz dela - requer versatilidade para navegar suas torções.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M15 15 L35 15 L35 35 L55 35 L55 55 L75 55 L75 75 L85 75 L85 85" 
+                    stroke="#1a0f0a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="35" cy="25" r="3" fill="#c75b39"/>
+                    <circle cx="55" cy="45" r="3" fill="#c75b39"/>
+                    <circle cx="75" cy="65" r="3" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 8. ODO NNYEW FIE KWAN
+            {
+                name: "Odo Nnyew Fie Kwan",
+                translation: "O amor não perde o caminho de casa",
+                meaning: "Símbolo do poder do amor. Aqueles guiados pelo amor sempre acabam no lugar certo. Representa a crença de que o amor verdadeiro sempre encontra seu caminho, não importa quão longe ou difícil a jornada possa parecer.",
+                proverb: "Quem é guiado pelo amor nunca se perde, pois o amor sempre encontra o caminho de volta ao lar.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 15 C30 15, 20 30, 20 50 C20 70, 50 90, 50 90 C50 90, 80 70, 80 50 C80 30, 70 15, 50 15" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M35 45 Q50 35, 65 45 Q65 60, 50 72 Q35 60, 35 45" fill="#c75b39"/>
+                    <circle cx="40" cy="40" r="3" fill="#1a0f0a"/>
+                    <circle cx="60" cy="40" r="3" fill="#1a0f0a"/>
+                    <path d="M50 78 L50 90 M45 85 L55 85" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 9. DENKYEM
+            {
+                name: "Denkyem",
+                translation: "Crocodilo",
+                meaning: "Símbolo de adaptabilidade e esperteza. Baseado no provérbio: 'O crocodilo vive na água, mas respira o ar'. Um lembrete para ser flexível na vida, para que você possa navegar em qualquer situação que surja.",
+                proverb: "O crocodilo vive na água, mas respira o ar - seja adaptável em todas as situações.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M15 60 Q30 35, 50 35 Q70 35, 85 60 Q70 85, 50 85 Q30 85, 15 60" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="32" cy="52" r="3" fill="#1a0f0a"/>
+                    <path d="M20 45 L10 40 M20 45 L10 50" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M60 60 Q72 65, 78 52 Q85 40, 72 48" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="68" cy="55" r="5" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 10. NEA ONNIM
+            {
+                name: "Nea Onnim",
+                translation: "Aquele que não sabe",
+                meaning: "Símbolo de conhecimento, educação ao longo da vida e busca contínua pelo conhecimento. Do provérbio: 'Quando aquele que não sabe aprende, ele chega a saber.' Representa a importância de ser humilde o suficiente para aprender.",
+                proverb: "Aquele que não sabe pode saber através do aprendizado - a humildade é o início da sabedoria.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="35" cy="35" r="18" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="30" cy="32" r="2" fill="#1a0f0a"/>
+                    <circle cx="40" cy="32" r="2" fill="#1a0f0a"/>
+                    <path d="M30 42 Q35 45, 40 42" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M45 30 L60 25 L60 45 L45 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M60 35 L72 35" stroke="#1a0f0a" stroke-width="3"/>
+                    <rect x="72" y="30" width="15" height="10" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M35 53 L35 80 M22 70 L48 70" stroke="#1a0f0a" stroke-width="3"/>
+                    <circle cx="35" cy="80" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 11. NSOROMMA
+            {
+                name: "Nsoromma",
+                translation: "Filho dos céus (Estrela)",
+                meaning: "Símbolo de fé e a crença em patronagem e dependência em um ser supremo. Representa a conexão entre o divino e o terreno, lembrando-nos de que somos filhos do universo e estamos sob proteção divina.",
+                proverb: "Como estrelas no céu, somos guiados por forças maiores que nós.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <polygon points="50,15 58,38 82,38 63,53 71,77 50,62 29,77 37,53 18,38 42,38" fill="#1a0f0a"/>
+                    <circle cx="50" cy="50" r="15" fill="#c75b39"/>
+                    <path d="M50 35 L50 65 M35 50 L65 50" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 12. ABAN
+            {
+                name: "Aban",
+                translation: "Fortaleza",
+                meaning: "Símbolo de força, sede de poder, autoridade e magnificência. Representa a fortaleza como proteção e símbolo de poder estável e duradouro. A fortaleza protege seu povo e mantém a ordem.",
+                proverb: "A fortaleza que resiste ao tempo é construída com pedras de união e argamassa de sabedoria.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <rect x="25" y="40" width="50" height="45" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M20 40 L50 20 L80 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <rect x="35" y="55" width="12" height="15" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <rect x="53" y="55" width="12" height="15" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="32" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 13. ABE DUA
+            {
+                name: "Abe Dua",
+                translation: "Palmeira",
+                meaning: "Símbolo de riqueza, engenhosidade e autossuficiência. A palmeira é uma árvore versátil que fornece alimento, abrigo, vinho de palma e materiais para construção. Representa a capacidade de prosperar usando os recursos disponíveis.",
+                proverb: "A palmeira que se curta oferece vinho, mas a que se mantém ereta oferece sombra - ambas servem ao seu propósito.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 85 L50 30" stroke="#1a0f0a" stroke-width="4"/>
+                    <path d="M50 30 Q30 25, 20 40 Q30 35, 50 30" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 30 Q70 25, 80 40 Q70 35, 50 30" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 45 Q25 40, 15 55 Q30 48, 50 45" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 45 Q75 40, 85 55 Q70 48, 50 45" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="30" r="5" fill="#c75b39"/>
+                    <ellipse cx="50" cy="75" rx="8" ry="12" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 14. ADWO
+            {
+                name: "Adwo",
+                translation: "Calma",
+                meaning: "Símbolo de paz, tranquilidade e quietude. Representa o estado de serenidade interior e exterior, a calma que vem da aceitação e do equilíbrio. A paz é a base de toda prosperidade duradoura.",
+                proverb: "Na calma das águas profundas, o peixe encontra seu caminho.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M20 50 Q35 35, 50 50 Q65 35, 80 50" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M20 65 Q35 50, 50 65 Q65 50, 80 65" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M20 80 Q35 65, 50 80 Q65 65, 80 80" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="35" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 15. AGYIN DAWURU
+            {
+                name: "Agyin Dawuru",
+                translation: "Gongo de Agyin",
+                meaning: "Símbolo de fidelidade, vigilância e diligência. Projetado para comemorar a fidelidade de Agyin, que foi um servo diligente e tocador de gongo do Asantehene. Representa o serviço dedicado e a lealdade.",
+                proverb: "O gongo que soa verdadeiro é aquele que é tocado com mãos fiéis.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <ellipse cx="50" cy="55" rx="25" ry="20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M35 40 L35 25 Q50 20, 65 25 L65 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="50" y1="35" x2="50" y2="55" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="55" r="8" fill="#c75b39"/>
+                    <path d="M25 55 L15 55 M85 55 L75 55" stroke="#1a0f0a" stroke-width="3"/>
+                </svg>`
+            },
+            
+            // 16. AKOBEN
+            {
+                name: "Akoben",
+                translation: "Chifre de guerra",
+                meaning: "Símbolo de chamada à ação, prontidão para ser chamado à ação, estado de alerta e voluntarismo. O chifre de guerra convoca os guerreiros para a batalha e representa a disposição para agir quando necessário.",
+                proverb: "Quando o chifre de guerra soa, o corajoso não pergunta por quê, mas se prepara.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M20 70 Q30 50, 50 45 Q70 40, 85 25" stroke="#1a0f0a" stroke-width="4" fill="none"/>
+                    <path d="M75 20 L85 25 L80 35" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="30" cy="60" r="5" fill="#c75b39"/>
+                    <path d="M25 55 L20 45 M35 55 L40 45" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 17. AKOFENA
+            {
+                name: "Akofena",
+                translation: "Espada de guerra",
+                meaning: "Símbolo de autoridade do estado, legalidade, autoridade legitimada de um governante, reconhecimento de bravura em feitos heroicos. O brasão de armas de Gana mostra uma dessas espadas cerimoniais cruzadas com o cajado do linguista.",
+                proverb: "A espada do estado é brandida com justiça, não com ira.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 85 L50 25" stroke="#1a0f0a" stroke-width="4"/>
+                    <path d="M35 30 Q50 15, 65 30 L50 25 Z" fill="#1a0f0a"/>
+                    <path d="M35 70 Q25 60, 35 50 Q45 60, 35 70" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M65 70 Q75 60, 65 50 Q55 60, 65 70" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="75" r="6" fill="#c75b39"/>
+                    <path d="M35 85 L65 85" stroke="#1a0f0a" stroke-width="3"/>
+                </svg>`
+            },
+            
+            // 18. AKOKO NAN
+            {
+                name: "Akoko Nan",
+                translation: "Pé da galinha",
+                meaning: "Símbolo de disciplina acoplada com cuidado e nutrição. Do provérbio Akan: 'Akoko nan tia ba na enkum ba' - O pé da galinha pisa no filhote (pintinho) mas não mata o filhote. Representa correção com amor.",
+                proverb: "O pé da galinha pisa no pintinho, mas não o mata - disciplina com cuidado.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 75 L40 45 L50 75" stroke="#1a0f0a" stroke-width="4" fill="none" stroke-linejoin="round"/>
+                    <path d="M50 75 L60 45 L70 75" stroke="#1a0f0a" stroke-width="4" fill="none" stroke-linejoin="round"/>
+                    <circle cx="40" cy="40" r="4" fill="#c75b39"/>
+                    <circle cx="60" cy="40" r="4" fill="#c75b39"/>
+                    <path d="M35 75 L40 85 M45 75 L50 85 M55 75 L60 85 M65 75 L70 85" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 19. AKOMA NTOASO
+            {
+                name: "Akoma Ntoaso",
+                translation: "União dos corações",
+                meaning: "Símbolo de acordo, união e solidariedade ou um pacto. Uma ampliação do conceito de Akoma, representando corações unidos em propósito comum. A união faz a força quando há harmonia entre os corações.",
+                proverb: "Corações unidos batem como um só - na união está a força.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 50 C20 40, 20 25, 35 25 C45 25, 50 35, 50 35 C50 35, 55 25, 65 25 C80 25, 80 40, 70 50 L50 70 Z" fill="#1a0f0a"/>
+                    <path d="M25 55 C15 45, 15 30, 30 30 C38 30, 45 38, 45 38" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M75 55 C85 45, 85 30, 70 30 C62 30, 55 38, 55 38" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="50" r="8" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 20. AKOMA
+            {
+                name: "Akoma",
+                translation: "Coração",
+                meaning: "Símbolo de amor, boa vontade, paciência, fidelidade, afeto, resistência e consistência. Representa o coração como sede das emoções e da compreensão. Patience é a maior virtude - suportar as dificuldades com coração resiliente.",
+                proverb: "O coração paciente supera todas as adversidades, pois a tolerância é a base da sabedoria.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 25 C40 15, 20 20, 20 40 C20 60, 50 80, 50 80 C50 80, 80 60, 80 40 C80 20, 60 15, 50 25" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M35 40 Q50 30, 65 40 Q65 55, 50 65 Q35 55, 35 40" fill="#c75b39"/>
+                    <path d="M50 50 L50 60 M45 55 L55 55" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 21. ANANSE NTENTAN
+            {
+                name: "Ananse Ntentan",
+                translation: "Teia de aranha",
+                meaning: "Símbolo de sabedoria, astúcia, criatividade e as complexidades da vida. É a teia de Ananse, a aranha trambiqueira que é preeminente no folclore africano. Representa a sabedoria de criar soluções complexas.",
+                proverb: "A sabedoria da aranha está em tecer sua teia com paciência, criando conexões que capturam oportunidades.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="50" cy="50" r="35" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="50" r="25" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="50" r="15" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <line x1="50" y1="15" x2="50" y2="85" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="15" y1="50" x2="85" y2="50" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="25" y1="25" x2="75" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="75" y1="25" x2="25" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 22. ANI BERE A ENSO GYA
+            {
+                name: "Ani Bere A Enso Gya",
+                translation: "Por mais vermelhos que fiquem os olhos",
+                meaning: "Símbolo de paciência, autocontenção, autodisciplina e autocontrole. Por mais irritado ou sério que alguém fique, seus olhos não soltam chamas. Representa a capacidade de manter a calma mesmo sob provocação.",
+                proverb: "Por mais vermelhos que os olhos fiquem, eles não soltam chamas - a paciência vence a ira.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <ellipse cx="35" cy="45" rx="15" ry="12" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <ellipse cx="65" cy="45" rx="15" ry="12" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="35" cy="45" r="6" fill="#c75b39"/>
+                    <circle cx="65" cy="45" r="6" fill="#c75b39"/>
+                    <path d="M20 45 Q35 35, 50 45 Q65 35, 80 45" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M35 60 L35 75 M65 60 L65 75" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="35" y1="75" x2="65" y2="75" stroke="#1a0f0a" stroke-width="3"/>
+                </svg>`
+            },
+            
+            // 23. ASASE YE DURU
+            {
+                name: "Asase Ye Duru",
+                translation: "A Terra tem peso",
+                meaning: "Símbolo de providência e divindade da Mãe Terra. Representa a importância da Terra em sustentar a vida e a necessidade de respeitar e proteger o meio ambiente. A terra é sagrada e fornece tudo o que precisamos.",
+                proverb: "A Terra tem peso - ela sustenta todos nós e devemos honrá-la em retorno.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <ellipse cx="50" cy="70" rx="35" ry="18" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 65 Q50 40, 70 65" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M40 55 Q50 35, 60 55" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="45" r="6" fill="#c75b39"/>
+                    <path d="M30 78 L35 90 M50 82 L50 95 M70 78 L65 90" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 24. AYA
+            {
+                name: "Aya",
+                translation: "Samambaia",
+                meaning: "Símbolo de resistência, independência, desafio contra dificuldades, robustez, perseverança e engenhosidade. A samambaia cresce em lugares difíceis e sobrevive às adversidades. Representa a capacidade de crescer apesar das dificuldades.",
+                proverb: "A samambaia não pede permissão para crescer nas rochas - ela simplesmente cresce.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 85 L50 40" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M50 40 Q30 35, 25 50 Q35 45, 50 40" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 40 Q70 35, 75 50 Q65 45, 50 40" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 55 Q25 50, 20 65 Q35 58, 50 55" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 55 Q75 50, 80 65 Q65 58, 50 55" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 70 Q30 65, 25 80 Q40 72, 50 70" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 70 Q70 65, 75 80 Q60 72, 50 70" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="50" cy="30" rx="8" ry="12" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 25. BESE SAKA
+            {
+                name: "Bese Saka",
+                translation: "Cacho de nozes de cola",
+                meaning: "Símbolo de riqueza, poder, abundância e fartura. Também símbolo de união e solidariedade. As nozes de cola são importantes na cultura Akan para recepção de visitantes e cerimônias. Representa prosperidade compartilhada.",
+                proverb: "O cacho de cola que é compartilhado doce mais do que o que é guardado.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 20 L50 35" stroke="#1a0f0a" stroke-width="3"/>
+                    <ellipse cx="40" cy="40" rx="8" ry="12" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="60" cy="40" rx="8" ry="12" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="35" cy="58" rx="8" ry="12" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="50" cy="58" rx="8" ry="12" fill="#c75b39"/>
+                    <ellipse cx="65" cy="58" rx="8" ry="12" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="40" cy="76" rx="8" ry="12" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="60" cy="76" rx="8" ry="12" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                </svg>`
+            },
+            
+            // 26. BI NKA BI
+            {
+                name: "Bi Nka Bi",
+                translation: "Ninguém morde o outro",
+                meaning: "Símbolo de advertência contra calúnia, conflito e disputas. Promove a paz e harmonia entre as pessoas, encorajando a coexistência pacífica. Ninguém deve prejudicar o outro através de palavras ou ações.",
+                proverb: "Que ninguém morde o outro - vivemos melhor em paz do que em conflito.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="35" cy="50" r="20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="65" cy="50" r="20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M45 50 L55 50" stroke="#c75b39" stroke-width="4"/>
+                    <path d="M25 50 L20 45 M25 50 L20 55" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M75 50 L80 45 M75 50 L80 55" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 27. DAME DAME
+            {
+                name: "Dame Dame",
+                translation: "Quadriculado",
+                meaning: "Símbolo de astúcia, inteligência e estratégia. Baseado no jogo de damas (dame-dame), representa a capacidade de pensar à frente, planejar estrategicamente e superar oponentes através da inteligência.",
+                proverb: "Na vida como no jogo de damas, a vitória pertence ao estrategista, não apenas ao forte.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <rect x="20" y="20" width="60" height="60" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <line x1="20" y1="40" x2="80" y2="40" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="20" y1="60" x2="80" y2="60" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="40" y1="20" x2="40" y2="80" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="60" y1="20" x2="60" y2="80" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="30" cy="30" r="5" fill="#1a0f0a"/>
+                    <circle cx="50" cy="30" r="5" fill="#c75b39"/>
+                    <circle cx="70" cy="30" r="5" fill="#1a0f0a"/>
+                    <circle cx="30" cy="50" r="5" fill="#c75b39"/>
+                    <circle cx="50" cy="50" r="5" fill="#1a0f0a"/>
+                    <circle cx="70" cy="50" r="5" fill="#c75b39"/>
+                    <circle cx="30" cy="70" r="5" fill="#1a0f0a"/>
+                    <circle cx="50" cy="70" r="5" fill="#c75b39"/>
+                    <circle cx="70" cy="70" r="5" fill="#1a0f0a"/>
+                </svg>`
+            },
+            
+            // 28. DONO NTOASO
+            {
+                name: "Dono Ntoaso",
+                translation: "Tambor duplo unido",
+                meaning: "Símbolo de ação unida, vigilância, boa vontade, louvor, regozijo e habilidade. Os tambores de tensão unidos representam a harmonia e a cooperação na comunicação e na ação coletiva.",
+                proverb: "Dois tambores que soam juntos criam um ritmo que move multidões.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <ellipse cx="35" cy="50" rx="15" ry="25" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <ellipse cx="65" cy="50" rx="15" ry="25" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="35" y1="25" x2="35" y2="15" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="65" y1="25" x2="65" y2="15" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="35" y1="75" x2="65" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="35" cy="50" r="8" fill="#c75b39"/>
+                    <circle cx="65" cy="50" r="8" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 29. DONO
+            {
+                name: "Dono",
+                translation: "Tambor de tensão",
+                meaning: "Símbolo de apelação, louvor, boa vontade e ritmo. O tambor de tensão é usado para chamar atenção, celebrar e comunicar. Representa a voz que se faz ouvir e o ritmo da vida comunitária.",
+                proverb: "O tambor que fala bem é aquele que transmite a verdade com ritmo.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <ellipse cx="50" cy="55" rx="20" ry="30" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="50" y1="25" x2="50" y2="15" stroke="#1a0f0a" stroke-width="3"/>
+                    <line x1="30" y1="40" x2="70" y2="40" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="30" y1="55" x2="70" y2="55" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="30" y1="70" x2="70" y2="70" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="55" r="10" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 30. DUAFE
+            {
+                name: "Duafe",
+                translation: "Pente de madeira",
+                meaning: "Símbolo de consideração feminina ou boas qualidades femininas como paciência, prudência, afeto, amor e cuidado. Representa a beleza e o cuidado que as mulheres trazem para a sociedade.",
+                proverb: "O pente que desembaraça com cuidado é símbolo de amor maternal.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 30 L70 30 L70 40 L30 40 Z" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="35" y1="40" x2="35" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="42" y1="40" x2="42" y2="70" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="49" y1="40" x2="49" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="56" y1="40" x2="56" y2="70" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="63" y1="40" x2="63" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="55" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 31. EBAN
+            {
+                name: "Eban",
+                translation: "Cerca",
+                meaning: "Símbolo de segurança, proteção e amor. A cerca protege o lar e cria um espaço seguro para a família. Representa o amor que protege e cuida, criando limites saudáveis.",
+                proverb: "A cerca que protege com amor é mais forte que a muralha construída com medo.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <rect x="25" y="35" width="50" height="40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="25" y1="45" x2="75" y2="45" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="25" y1="55" x2="75" y2="55" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="25" y1="65" x2="75" y2="65" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="35" y1="35" x2="35" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="50" y1="35" x2="50" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="65" y1="35" x2="65" y2="75" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M20 35 L25 30 L30 35 M45 35 L50 30 L55 35 M70 35 L75 30 L80 35" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="55" r="5" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 32. EPA
+            {
+                name: "Epa",
+                translation: "Algemas",
+                meaning: "Símbolo de lei e justiça. Representa a autoridade da lei e a necessidade de justiça na sociedade. Também pode representar a escravidão e a libertação, lembrando a importância da liberdade sob a lei.",
+                proverb: "As algemas da justiça prendem o culpado, mas libertam a sociedade.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="35" cy="40" r="15" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="65" cy="40" r="15" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M45 40 L55 40" stroke="#1a0f0a" stroke-width="4"/>
+                    <path d="M35 55 L35 75 M65 55 L65 75" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M25 75 L45 75 M55 75 L75 75" stroke="#1a0f0a" stroke-width="3"/>
+                    <circle cx="35" cy="40" r="5" fill="#c75b39"/>
+                    <circle cx="65" cy="40" r="5" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 33. ESE NE TEKREMA
+            {
+                name: "Ese ne Tekrema",
+                translation: "Dentes e língua",
+                meaning: "Símbolo de melhoria, avanço, crescimento, necessidade de amizade e interdependência. Dentes e língua trabalham juntos mas às vezes se mordem, representando relacionamentos que requerem paciência mútua.",
+                proverb: "Os dentes e a língua se mordem às vezes, mas trabalham juntos para alimentar o corpo.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M25 35 Q50 30, 75 35" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M25 45 Q50 40, 75 45" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M25 55 Q50 50, 75 55" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M25 65 Q50 60, 75 65" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 35 L30 45 M40 35 L40 45 M50 35 L50 45 M60 35 L60 45 M70 35 L70 45" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M30 55 L30 65 M40 55 L40 65 M50 55 L50 65 M60 55 L60 65 M70 55 L70 65" stroke="#1a0f0a" stroke-width="2"/>
+                    <ellipse cx="50" cy="75" rx="20" ry="8" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 34. FAFANTO
+            {
+                name: "Fafanto",
+                translation: "Borboleta",
+                meaning: "Símbolo de ternura, gentileza, honestidade e fragilidade. A borboleta representa a beleza delicada e a transformação. Lembra-nos de apreciar as coisas belas mas efêmeras da vida.",
+                proverb: "A borboleta que dança com a flor não sabe que sua beleza é passageira, mas sua alegria é eterna.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 35 L50 65" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M50 45 Q30 35, 25 50 Q30 60, 50 50" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 45 Q70 35, 75 50 Q70 60, 50 50" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 55 Q35 65, 30 75 Q40 70, 50 60" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 55 Q65 65, 70 75 Q60 70, 50 60" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="35" r="4" fill="#c75b39"/>
+                    <path d="M45 30 L40 25 M55 30 L60 25" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 35. FIHANKRA
+            {
+                name: "Fihankra",
+                translation: "Casa composta fechada",
+                meaning: "Símbolo de fraternidade, segurança, proteção, completude e solidariedade. A casa fechada representa a comunidade protegida e unida, onde todos estão seguros e cuidados.",
+                proverb: "Dentro dos muros da casa composta, a segurança é compartilhada e o amor é multiplicado.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <rect x="30" y="40" width="40" height="40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M25 40 L50 20 L75 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <rect x="42" y="60" width="16" height="20" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="70" r="2" fill="#1a0f0a"/>
+                    <path d="M35 50 L40 50 M60 50 L65 50 M35 55 L40 55 M60 55 L65 55" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="32" r="5" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 36. FOFO
+            {
+                name: "Fofo",
+                translation: "Planta florescente (bidens pilosa)",
+                meaning: "Símbolo de advertência contra inveja e cobiça. A planta fofo tem propriedades medicinais mas também pode ser invasiva. Representa a necessidade de cuidado com sentimentos negativos que podem crescer descontroladamente.",
+                proverb: "A planta que cresce com inveja em seu coração espalha espinhos onde deveria haver flores.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 85 L50 50" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M50 50 Q35 40, 30 50 Q40 45, 50 50" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 50 Q65 40, 70 50 Q60 45, 50 50" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 65 Q30 55, 25 70 Q40 62, 50 65" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 65 Q70 55, 75 70 Q60 62, 50 65" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="35" r="8" fill="#c75b39"/>
+                    <circle cx="42" cy="30" r="3" fill="#1a0f0a"/>
+                    <circle cx="58" cy="30" r="3" fill="#1a0f0a"/>
+                    <circle cx="50" cy="25" r="3" fill="#1a0f0a"/>
+                </svg>`
+            },
+            
+            // 37. GYAWU ATIKO
+            {
+                name: "Gyawu Atiko",
+                translation: "Atrás da cabeça de Gyawu",
+                meaning: "Símbolo de valor e bravura. Usado alternadamente com o símbolo Kwatakye Atiko. Diz-se que é um penteado de Gyawu, um capitão de guerra do antigo Asante. Representa a coragem em batalha.",
+                proverb: "O guerreiro que usa o penteado de Gyawu não conhece o medo no campo de batalha.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 40 Q50 25, 70 40 L70 60 Q50 75, 30 60 Z" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M35 45 Q50 35, 65 45" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M30 40 L25 30 M70 40 L75 30" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M35 35 L30 25 M65 35 L70 25" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M40 32 L38 22 M60 32 L62 22" stroke="#1a0f0a" stroke-width="3"/>
+                    <circle cx="50" cy="55" r="8" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 38. HWEHWEMUDUA
+            {
+                name: "Hwehwemudua",
+                translation: "Bastão de medição",
+                meaning: "Símbolo de excelência, qualidade superior, perfeição, conhecimento e exame crítico. O bastão de medição representa o padrão pelo qual as coisas são julgadas e avaliadas.",
+                proverb: "Aquele que mede com precisão constrói com perfeição.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <rect x="45" y="20" width="10" height="60" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="30" y1="30" x2="70" y2="30" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="30" y1="40" x2="70" y2="40" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="30" y1="50" x2="70" y2="50" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="30" y1="60" x2="70" y2="60" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="30" y1="70" x2="70" y2="70" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="5" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 39. HYE WO NHYE
+            {
+                name: "Hye Wo Nhye",
+                translation: "Queime você não queimará",
+                meaning: "Símbolo de resistência e imperecibilidade; também símbolo de permanência. Representa a capacidade de resistir às adversidades sem ser destruído, como o ouro que passa pelo fogo e fica purificado.",
+                proverb: "Aquele que é imperecível emerge do fogo mais brilhante do que antes.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 20 Q30 40, 35 60 Q40 75, 50 85 Q60 75, 65 60 Q70 40, 50 20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 30 Q40 45, 43 58 Q45 68, 50 75 Q55 68, 57 58 Q60 45, 50 30" fill="#c75b39"/>
+                    <path d="M35 50 L30 45 M35 50 L30 55 M65 50 L70 45 M65 50 L70 55" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 40. KRAMO BONE AMMA YEANHU KRAMO PA
+            {
+                name: "Kramo Bone Amma Yeanhu Kramo Pa",
+                translation: "O mau muçulmano dificulta reconhecer o bom",
+                meaning: "Símbolo de advertência contra engano e hipocrisia. O mau comportamento de alguns dificulta a identificação dos verdadeiramente virtuosos. Representa a importância de julgar pelas ações, não apenas pelas aparências.",
+                proverb: "A máscara do hipócrita mancha o rosto de todos que a usam.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="35" cy="40" r="15" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="65" cy="40" r="15" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="32" cy="38" r="2" fill="#1a0f0a"/>
+                    <circle cx="38" cy="38" r="2" fill="#1a0f0a"/>
+                    <circle cx="62" cy="38" r="2" fill="#1a0f0a"/>
+                    <circle cx="68" cy="38" r="2" fill="#1a0f0a"/>
+                    <path d="M30 45 Q35 48, 40 45" stroke="#1a0f0a" stroke-width="1" fill="none"/>
+                    <path d="M60 45 Q65 48, 70 45" stroke="#1a0f0a" stroke-width="1" fill="none"/>
+                    <path d="M35 55 L30 75 M65 55 L70 75" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M30 75 L50 85 L70 75" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="60" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 41. KURONTI NE AKWAMU
+            {
+                name: "Kuronti ne Akwamu",
+                translation: "Kuronti e Akwamu",
+                meaning: "Símbolo de democracia, compartilhamento de ideias, tomada de conselho. Kuronti e Akwamu eram grupos de conselheiros que representavam diferentes perspectivas na corte Asante. Representa o governo participativo.",
+                proverb: "Duas cabeças que pensam juntas governam melhor do que uma sozinha.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="35" cy="50" r="20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="65" cy="50" r="20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M45 50 L55 50" stroke="#c75b39" stroke-width="4"/>
+                    <path d="M35 35 L35 25 M35 65 L35 75" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M65 35 L65 25 M65 65 L65 75" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="35" cy="50" r="5" fill="#1a0f0a"/>
+                    <circle cx="65" cy="50" r="5" fill="#1a0f0a"/>
+                </svg>`
+            },
+            
+            // 42. KWATAKYE ATIKO
+            {
+                name: "Kwatakye Atiko",
+                translation: "Atrás da cabeça de Kwatakye",
+                meaning: "Símbolo de valor e bravura. Este símbolo também é chamado Gyawu Atiko. Diz-se que é um penteado de Kwatakye, um capitão de guerra do antigo Asante. Representa a coragem e liderança militar.",
+                proverb: "O penteado do guerreiro é coroado com o sangue dos inimigos da paz.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 45 Q50 30, 70 45 L70 65 Q50 80, 30 65 Z" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 45 L20 35 M70 45 L80 35" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M35 40 L28 28 M65 40 L72 28" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M40 36 L35 24 M60 36 L65 24" stroke="#1a0f0a" stroke-width="3"/>
+                    <circle cx="50" cy="58" r="7" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 43. MAKO
+            {
+                name: "Mako",
+                translation: "Pimentas",
+                meaning: "Símbolo de desigualdade e desenvolvimento desigual. Do provérbio: 'Todas as pimentas na mesma planta não amadurecem ao mesmo tempo.' Representa que as pessoas amadurecem e desenvolvem-se em ritmos diferentes.",
+                proverb: "Todas as pimentas na mesma planta não amadurecem ao mesmo tempo - cada um tem seu tempo.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 20 L50 35" stroke="#1a0f0a" stroke-width="3"/>
+                    <ellipse cx="35" cy="40" rx="6" ry="10" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="50" cy="40" rx="6" ry="10" fill="#c75b39"/>
+                    <ellipse cx="65" cy="40" rx="6" ry="10" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="42" cy="58" rx="6" ry="10" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="58" cy="58" rx="6" ry="10" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <ellipse cx="50" cy="76" rx="6" ry="10" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                </svg>`
+            },
+            
+            // 44. MENSO WO KENTEN
+            {
+                name: "Menso Wo Kenten",
+                translation: "Não carrego sua cesta",
+                meaning: "Símbolo de indústria, autossuficiência e autodeterminação econômica. Representa a importância de trabalhar por seus próprios objetivos e não depender dos outros para carregar seus fardos.",
+                proverb: "Cada um carrega sua própria cesta - na independência está a dignidade.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M35 30 L35 70" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M65 30 L65 70" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M35 40 L65 40" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M35 50 L65 50" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M35 60 L65 60" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M30 30 L40 30 M60 30 L70 30" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M25 70 L45 70 M55 70 L75 70" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 45. MFRAMADAN
+            {
+                name: "Mframadan",
+                translation: "Casa bem ventilada",
+                meaning: "Símbolo de resiliência e prontidão para enfrentar as vicissitudes da vida. A casa bem ventilada está preparada para qualquer clima. Representa a capacidade de se adaptar e prosperar apesar das mudanças.",
+                proverb: "A casa bem ventilada resiste à tempestade porque está preparada para todas as estações.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 40 L30 80 L70 80 L70 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M25 40 L50 25 L75 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="35" y1="50" x2="65" y2="50" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="35" y1="60" x2="65" y2="60" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="35" y1="70" x2="65" y2="70" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M40 35 L45 30 M50 32 L55 27" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="65" r="5" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 46. MMERE DANE
+            {
+                name: "Mmere Dane",
+                translation: "O tempo muda",
+                meaning: "Símbolo da temporariedade dos bons tempos. Tudo na vida é transitório e as circunstâncias mudam constantemente. Representa a necessidade de aproveitar o momento e estar preparado para mudanças.",
+                proverb: "O tempo muda e com ele as fortunas - prepare-se enquanto o sol brilha.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="50" cy="50" r="30" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 20 L50 35" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M50 50 L65 35" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="5" fill="#c75b39"/>
+                    <path d="M75 50 L85 50 M15 50 L25 50" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M70 30 L78 22 M22 78 L30 70" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M70 70 L78 78 M22 22 L30 30" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 47. MPATAPO
+            {
+                name: "Mpatapo",
+                translation: "Nó de pacificação",
+                meaning: "Símbolo de pacificação, perdão e reconciliação. O nó de pacificação é usado em rituais de resolução de conflitos. Representa a capacidade de curar feridas e restaurar a harmonia nas relações.",
+                proverb: "O nó que desata a discórdia e ata a paz é o mais sagrado de todos.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 30 Q50 50, 70 30" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 70 Q50 50, 70 70" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 30 Q50 50, 30 70" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M70 30 Q50 50, 70 70" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="50" r="8" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 48. MPUANNUM
+            {
+                name: "Mpuannum",
+                translation: "Cinco tuftos de cabelo",
+                meaning: "Símbolo de lealdade e ofício sacerdotal. Os cinco tuftos representam a devoção e o compromisso com valores superiores. Associado aos sacerdotes e líderes espirituais na cultura Akan.",
+                proverb: "Os cinco tuftos balançam juntos como um só - na lealdade há força.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M25 75 Q25 45, 35 35 Q45 45, 35 75" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M40 75 Q40 40, 50 30 Q60 40, 50 75" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M65 75 Q65 45, 75 35 Q85 45, 75 75" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="35" cy="40" r="4" fill="#c75b39"/>
+                    <circle cx="50" cy="35" r="4" fill="#c75b39"/>
+                    <circle cx="75" cy="40" r="4" fill="#c75b39"/>
+                    <line x1="35" y1="75" x2="35" y2="85" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="50" y1="75" x2="50" y2="85" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="75" y1="75" x2="75" y2="85" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 49. NKONSONKONSON
+            {
+                name: "Nkonsonkonson",
+                translation: "Corrente",
+                meaning: "Símbolo de união e comunidade. A corrente representa a interconexão entre as pessoas - cada elo é importante para a força do todo. Representa que estamos todos conectados e dependentes uns dos outros.",
+                proverb: "Um elo sozinho não faz corrente, mas sem cada elo não há corrente.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <ellipse cx="30" cy="40" rx="12" ry="8" stroke="#1a0f0a" stroke-width="3" fill="none" transform="rotate(-30 30 40)"/>
+                    <ellipse cx="50" cy="50" rx="12" ry="8" stroke="#1a0f0a" stroke-width="3" fill="none" transform="rotate(30 50 50)"/>
+                    <ellipse cx="70" cy="60" rx="12" ry="8" stroke="#1a0f0a" stroke-width="3" fill="none" transform="rotate(-30 70 60)"/>
+                    <circle cx="30" cy="40" r="3" fill="#c75b39"/>
+                    <circle cx="50" cy="50" r="3" fill="#c75b39"/>
+                    <circle cx="70" cy="60" r="3" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 50. NSAA
+            {
+                name: "Nsaa",
+                translation: "Tipo de tecido tecido",
+                meaning: "Símbolo de excelência, autenticidade e genuinidade. O tecido Nsaa é renomado por sua qualidade superior. Representa o padrão de excelência pelo qual as coisas devem ser julgadas.",
+                proverb: "Como o tecido Nsaa, que seja sua vida tecida com fios de excelência.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <rect x="25" y="25" width="50" height="50" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="25" y1="35" x2="75" y2="35" stroke="#1a0f0a" stroke-width="1"/>
+                    <line x1="25" y1="45" x2="75" y2="45" stroke="#1a0f0a" stroke-width="1"/>
+                    <line x1="25" y1="55" x2="75" y2="55" stroke="#1a0f0a" stroke-width="1"/>
+                    <line x1="25" y1="65" x2="75" y2="65" stroke="#1a0f0a" stroke-width="1"/>
+                    <line x1="35" y1="25" x2="35" y2="75" stroke="#1a0f0a" stroke-width="1"/>
+                    <line x1="45" y1="25" x2="45" y2="75" stroke="#1a0f0a" stroke-width="1"/>
+                    <line x1="55" y1="25" x2="55" y2="75" stroke="#1a0f0a" stroke-width="1"/>
+                    <line x1="65" y1="25" x2="65" y2="75" stroke="#1a0f0a" stroke-width="1"/>
+                    <rect x="40" y="40" width="20" height="20" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 51. NTEASEE
+            {
+                name: "Nteasee",
+                translation: "Entendimento",
+                meaning: "Símbolo de compreensão e cooperação. Representa a capacidade de entender as perspectivas dos outros e trabalhar juntos em harmonia. A compreensão mútua é a base de toda cooperação bem-sucedida.",
+                proverb: "O entendimento que flui entre corações cria rios de cooperação.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 50 Q40 35, 50 50 Q60 35, 70 50" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 60 Q40 45, 50 60 Q60 45, 70 60" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 70 Q40 55, 50 70 Q60 55, 70 70" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="50" r="6" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 52. NYAME BIRIBI WO SORO
+            {
+                name: "Nyame Biribi Wo Soro",
+                translation: "Deus, há algo nos céus",
+                meaning: "Símbolo de esperança e inspiração. Da expressão: 'Deus, há algo lá em cima (nos céus); deixe vir para mim.' Representa a fé de que há bênçãos divinas reservadas para aqueles que esperam e confiam.",
+                proverb: "Deus, há algo nos céus; que desça sobre mim como orvalho da manhã.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M20 30 Q50 20, 80 30" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M25 40 Q50 30, 75 40" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 45 L50 70" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M40 55 L50 45 L60 55" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="75" r="8" fill="#c75b39"/>
+                    <path d="M35 80 Q50 90, 65 80" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                </svg>`
+            },
+            
+            // 53. NYAME DUA
+            {
+                name: "Nyame Dua",
+                translation: "Árvore de Deus",
+                meaning: "Símbolo da presença e proteção de Deus. O toco sagrado representa o altar onde se fazem oferendas e se busca a conexão divina. Representa a proteção divina sobre o lar e a família.",
+                proverb: "Sob a árvore de Deus, o justo encontra sombra e proteção.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <rect x="42" y="60" width="16" height="25" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="45" r="20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M35 35 L50 20 L65 35" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M30 45 L20 35 M70 45 L80 35" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="45" r="6" fill="#c75b39"/>
+                    <path d="M38 85 L50 75 L62 85" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                </svg>`
+            },
+            
+            // 54. NYAME NWU NA MAWU
+            {
+                name: "Nyame Nwu Na Mawu",
+                translation: "Deus não morre para que eu morra",
+                meaning: "Símbolo que expressa a imortalidade da alma humana. A crença de que há vida após a morte e que a essência divina em nós é eterna. Representa conforto na face da mortalidade.",
+                proverb: "Se Deus não morre, então aquilo que é divino em mim também não morre.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <circle cx="50" cy="35" r="15" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 50 L50 75" stroke="#1a0f0a" stroke-width="3"/>
+                    <path d="M35 60 L50 50 L65 60" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M35 75 L50 65 L65 75" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="35" r="5" fill="#c75b39"/>
+                    <path d="M40 85 L50 75 L60 85" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                </svg>`
+            },
+            
+            // 55. OKUAFOPA
+            {
+                name: "Okuafo Pa",
+                translation: "Bom fazendeiro",
+                meaning: "Símbolo de diligência, trabalho árduo e empreendedorismo. O bom fazendeiro trabalha consistentemente e colhe os frutos de seu trabalho. Representa a recompensa do trabalho honesto e persistente.",
+                proverb: "O bom fazendeiro não espera a chuva para começar a arar o campo.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 75 L30 45 L50 35 L70 45 L70 75" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 55 L70 55" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M30 65 L70 65" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M50 35 L50 25" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M45 30 L55 30" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="5" fill="#c75b39"/>
+                    <path d="M35 75 L35 85 M50 75 L50 85 M65 75 L65 85" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 56. OSRAM NE NSOROMMA
+            {
+                name: "Osram ne Nsoromma",
+                translation: "Lua e estrela",
+                meaning: "Símbolo de fidelidade, afeto, harmonia, benevolência, amor, lealdade e feminilidade. A lua e a estrela representam a beleza da noite e a constância dos ciclos naturais. Associado à beleza feminina e à harmonia.",
+                proverb: "Como a lua e a estrela que dançam juntas no céu noturno, que assim seja nossa harmonia.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M35 30 Q55 30, 55 50 Q55 70, 35 70 Q50 70, 50 50 Q50 30, 35 30" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <polygon points="70,35 73,45 83,45 75,52 78,62 70,55 62,62 65,52 57,45 67,45" fill="#c75b39"/>
+                    <circle cx="70" cy="45" r="3" fill="#1a0f0a"/>
+                </svg>`
+            },
+            
+            // 57. OWUO ATWEDEE
+            {
+                name: "Owuo Atwedee",
+                translation: "Escada da morte",
+                meaning: "Símbolo da certeza e universalidade da morte. A morte é o destino comum de todos os seres vivos, não importa sua posição na vida. Representa a humildade que vem da consciência da mortalidade.",
+                proverb: "A escada da morte é a única que todos devem subir - rico ou pobre, rei ou servo.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 80 L30 20 L70 20 L70 80" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <line x1="30" y1="35" x2="70" y2="35" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="30" y1="50" x2="70" y2="50" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="30" y1="65" x2="70" y2="65" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="27" r="4" fill="#c75b39"/>
+                    <circle cx="50" cy="42" r="4" fill="#c75b39"/>
+                    <circle cx="50" cy="57" r="4" fill="#c75b39"/>
+                    <circle cx="50" cy="72" r="4" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 58. SEPOW
+            {
+                name: "Sepow",
+                translation: "Faca do carrasco",
+                meaning: "Símbolo de justiça. A faca do carrasco representa a punição pelos crimes e a execução da justiça. Lembra que as ações têm consequências e que a justiça, embora severa, é necessária para a ordem social.",
+                proverb: "A faca da justiça não conhece rosto, mas conhece a verdade.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M40 25 L40 60 Q40 75, 55 75 Q70 75, 70 60 L70 25" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M55 25 L55 75" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M45 35 L65 35 M45 45 L65 45 M45 55 L65 55" stroke="#1a0f0a" stroke-width="1"/>
+                    <rect x="35" y="75" width="40" height="10" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="55" cy="50" r="5" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 59. TAMFO BEBRE
+            {
+                name: "Tamfo Bebre",
+                translation: "O inimigo sofrerá",
+                meaning: "Símbolo de má vontade, inveja e ciúme. Representa a crença de que aqueles que desejam o mal aos outros acabarão sofrendo as consequências de seus próprios pensamentos negativos. O inimigo cozinhará em seu próprio suco.",
+                proverb: "O inimigo que deseja o mal acabará cozinhando em seu próprio caldo de amargura.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M30 40 Q20 50, 30 60 Q40 70, 50 60 Q60 70, 70 60 Q80 50, 70 40 Q60 30, 50 40 Q40 30, 30 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="40" cy="48" r="3" fill="#1a0f0a"/>
+                    <circle cx="60" cy="48" r="3" fill="#1a0f0a"/>
+                    <path d="M45 55 Q50 58, 55 55" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M50 65 L50 75 M45 70 L55 70" stroke="#c75b39" stroke-width="3"/>
+                </svg>`
+            },
+            
+            // 60. UAC NKANEA
+            {
+                name: "UAC Nkanea",
+                translation: "Luzes UAC",
+                meaning: "Símbolo de avanço tecnológico. Representa o progresso e a modernização, iluminando o caminho para o futuro. As luzes simbolizam o conhecimento que dissipa a escuridão da ignorância.",
+                proverb: "As luzes do progresso iluminam o caminho daqueles que ousam caminhar em direção ao futuro.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <rect x="40" y="60" width="20" height="20" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M45 60 L45 50 L55 50 L55 60" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M40 40 L50 30 L60 40" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <line x1="50" y1="30" x2="50" y2="20" stroke="#1a0f0a" stroke-width="3"/>
+                    <line x1="35" y1="35" x2="25" y2="25" stroke="#1a0f0a" stroke-width="2"/>
+                    <line x1="65" y1="35" x2="75" y2="25" stroke="#1a0f0a" stroke-width="2"/>
+                    <circle cx="50" cy="70" r="6" fill="#c75b39"/>
+                    <path d="M30 70 L20 70 M80 70 L70 70" stroke="#1a0f0a" stroke-width="2"/>
+                </svg>`
+            },
+            
+            // 61. WAWA ABA
+            {
+                name: "Wawa Aba",
+                translation: "Semente da árvore wawa",
+                meaning: "Símbolo de robustez, resistência e perseverança. A semente da árvore wawa é conhecida por sua dureza e capacidade de sobreviver em condições difíceis. Representa a força interior que resiste às adversidades.",
+                proverb: "Como a semente da wawa que resiste ao tempo, que seja sua vontade inquebrantável.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <ellipse cx="50" cy="50" rx="25" ry="30" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 20 L50 80" stroke="#1a0f0a" stroke-width="2"/>
+                    <path d="M35 30 Q50 25, 65 30" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M30 50 Q50 45, 70 50" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <path d="M35 70 Q50 65, 65 70" stroke="#1a0f0a" stroke-width="2" fill="none"/>
+                    <circle cx="50" cy="50" r="8" fill="#c75b39"/>
+                </svg>`
+            },
+            
+            // 62. WOFORO DUA PA A
+            {
+                name: "Woforo Dua Pa A",
+                translation: "Quando você sobe numa boa árvore",
+                meaning: "Símbolo de apoio a boas causas. Do provérbio: 'Quando sobe numa boa árvore, empurre-o' - apoie aqueles que estão fazendo o bem. Representa a importância de apoiar iniciativas positivas e pessoas virtuosas.",
+                proverb: "Quando você vê alguém subindo numa boa árvore, empurre-o para cima, não puxe-o para baixo.",
+                svg: `<svg viewBox="0 0 100 100" class="adinkra-svg">
+                    <path d="M50 85 L50 40" stroke="#1a0f0a" stroke-width="4"/>
+                    <path d="M50 40 Q30 35, 20 50 Q35 45, 50 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 40 Q70 35, 80 50 Q65 45, 50 40" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 55 Q25 50, 15 65 Q35 58, 50 55" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M50 55 Q75 50, 85 65 Q65 58, 50 55" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <path d="M30 25 L40 35 L50 25 L60 35 L70 25" stroke="#1a0f0a" stroke-width="3" fill="none"/>
+                    <circle cx="50" cy="30" r="5" fill="#c75b39"/>
+                </svg>`
+            }
+        ];
+
+        // DOM Elements
+        const homeScreen = document.getElementById('homeScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const loading = document.getElementById('loading');
+        const symbolDisplay = document.getElementById('symbolDisplay');
+        const symbolName = document.getElementById('symbolName');
+        const symbolTranslation = document.getElementById('symbolTranslation');
+        const symbolMeaning = document.getElementById('symbolMeaning');
+        const symbolProverb = document.getElementById('symbolProverb');
+
+        // Event Listeners
+        homeScreen.addEventListener('click', revealSymbol);
+        
+        homeScreen.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            revealSymbol();
+        });
+
+        function revealSymbol() {
+            loading.classList.add('active');
+            
+            setTimeout(() => {
+                const randomIndex = Math.floor(Math.random() * adinkraSymbols.length);
+                const symbol = adinkraSymbols[randomIndex];
+                
+                symbolDisplay.innerHTML = symbol.svg;
+                symbolName.textContent = symbol.name;
+                symbolTranslation.textContent = symbol.translation;
+                symbolMeaning.textContent = symbol.meaning;
+                symbolProverb.textContent = symbol.proverb ? `"${symbol.proverb}"` : '';
+                
+                loading.classList.remove('active');
+                
+                homeScreen.classList.remove('active');
+                resultScreen.classList.add('active');
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate([50, 100, 50]);
+                }
+            }, 800);
+        }
+
+        function goHome() {
+            resultScreen.classList.remove('active');
+            homeScreen.classList.add('active');
+        }
+
+        // Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', e => {
+                    e.waitUntil(
+                        caches.open('adinkra-v1').then(cache => {
+                            return cache.addAll(['/']);
+                        })
+                    );
+                    self.skipWaiting();
+                });
+                self.addEventListener('fetch', e => {
+                    e.respondWith(
+                        caches.match(e.request).then(response => {
+                            return response || fetch(e.request);
+                        })
+                    );
+                });
+            `;
+            
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl)
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('SW registration failed'));
+        }
+
+        document.addEventListener('touchmove', function(e) {
+            if (e.target.closest('.screen')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
 </body>
 </html>
-
