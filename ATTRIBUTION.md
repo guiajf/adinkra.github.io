@@ -11,7 +11,7 @@ Este projeto foi desenvolvido com assistência de Inteligência Artificial:
 
 Os significados e descrições dos símbolos Adinkra foram extraídos de:
 
-- Documento:["Adinkra Symbols & Meanings](https://www.adinkrasymbols.org/)
+- Documento: [Adinkra Symbols & Meanings](https://www.adinkrasymbols.org/)
 - Contexto cultural: Povo Akan, Gana e Costa do Marfim
 
 ## Representações Visuais
